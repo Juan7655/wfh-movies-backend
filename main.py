@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import schemas, models
 from app.service import movie_service
 from app.database import SessionLocal, engine
-from app.controllers import movie_controller
+from app.controllers import movie_controller, rating_controller
 from sqlalchemy.schema import MetaData
 
 
@@ -18,6 +18,14 @@ app.include_router(
     movie_controller.router,
     prefix="/movie",
     tags=["Movies"],
+    responses={404: {"description": "Not found"}},
+)
+
+
+app.include_router(
+    rating_controller.router,
+    prefix="/rating",
+    tags=["Rating"],
     responses={404: {"description": "Not found"}},
 )
 

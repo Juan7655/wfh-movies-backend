@@ -9,4 +9,4 @@ from app.database import get_db
 from app.service import movie_service
 
 router = APIRouter()
-crud(router, schemas.MovieRead, schemas.Movie, models.Movie, 'id')
+crud(router, schemas.Rating, schemas.Rating, models.Rating, 'user')

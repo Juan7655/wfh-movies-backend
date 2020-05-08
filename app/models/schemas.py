@@ -1,6 +1,9 @@
-from typing import List, Optional
+from typing import Optional, TypeVar, Generic, List, Type
 
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
+
+T = TypeVar('T')
 
 
 class Movie(BaseModel):
@@ -17,3 +20,26 @@ class Movie(BaseModel):
 
 class MovieRead(Movie):
     id: int
+
+
+class Rating(BaseModel):
+    user: int
+    movie: int
+    rating: float
+    timestamp: int = None
+
+    class Config:
+        orm_mode = True
+
+
+class Page(GenericModel, Generic[T]):
+    page: int
+    total_pages: int
+    total_items: int
+    items_per_page: int
+    has_next: bool
+    has_prev: bool
+    items: List[T]
+
+    class Config:
+        orm_mode = True
