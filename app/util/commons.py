@@ -1,8 +1,8 @@
-from app.database import Base, get_db
+from fastapi import Depends, HTTPException, Path
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from app.models import models
-from fastapi import Depends, HTTPException, Path
+
+from app.database import Base, get_db
 
 
 class PlainOkResponse(BaseModel):
@@ -11,9 +11,12 @@ class PlainOkResponse(BaseModel):
 
 
 def instance_existence(model: Base, id_field: str, should_exist=True):
-    def wrapped(ida: int = Path(..., alias=id_field), db: Session = Depends(get_db)) -> Base:
-        print(ida)
-        db_instance = db.query(model).filter_by(**{id_field: ida}).first()
+    def wrapped(id_value: str = Path(..., alias=id_field), db: Session = Depends(get_db)) -> Base:
+        if type(id_value) is str:
+            filters = {k: v for k, v in zip(id_field.split('_'), id_value.split('_'))}
+        else:
+            filters = {id_field: id_value}
+        db_instance = db.query(model).filter_by(**filters).first()
         if should_exist == (db_instance is None):
             raise HTTPException(
                 status_code=404 if should_exist else 400,

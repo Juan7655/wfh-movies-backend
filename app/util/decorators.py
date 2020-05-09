@@ -1,48 +1,43 @@
-from typing import List
-
-from fastapi import Depends, HTTPException, Path, Response
+from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
+from app.models.schemas import Page
 from app.util.commons import create_instance, delete_instance, instance_existence, save_instance, \
     PlainOkResponse, paginator
-from app.models.schemas import MovieRead, Page
 
 
 def crud(router, read_model: BaseModel, write_model: BaseModel, query_model: Base, id_field: str):
     @router.get('', response_model=Page[read_model])
     def read_all(limit: int = 10, page: int = 1, db: Session = Depends(get_db)):
-        return paginator(db.query(query_model), page_number=page, per_page_limit=limit)
+        query = db.query(query_model)
+        return paginator(query, page_number=page, per_page_limit=limit)
 
     @router.post('', response_model=read_model)
-    def create(movie: write_model, db: Session = Depends(get_db)):
-        count = db.query(query_model).filter_by(title=movie.title).count()
-        if count != 0:
-            raise HTTPException(status_code=400,
-                                detail=query_model.__name__ + " already registered")
-        return create_instance(db=db, instance=movie, model=query_model)
+    def create(data: write_model, db: Session = Depends(get_db)):
+        return create_instance(db=db, instance=data, model=query_model)
 
     @router.get("/{%s}" % id_field, response_model=read_model)
-    def read_one(user_data: Base = Depends(instance_existence(query_model, id_field=id_field))):
-        return user_data
+    def read_one(instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
+        return instance
 
     @router.put("/{%s}" % id_field, response_model=read_model)
     def update_data(
-            movie: write_model,
+            data: write_model,
             db: Session = Depends(get_db),
-            user_data: Base = Depends(instance_existence(query_model, id_field=id_field))
+            instance: Base = Depends(instance_existence(query_model, id_field=id_field))
     ):
         # TODO make schema fields optional
-        for k, v in movie.dict().items():
-            getattr(user_data, k)
-            setattr(user_data, k, v)
-        return save_instance(db, user_data)
+        for k, v in data.dict().items():
+            getattr(instance, k)
+            setattr(instance, k, v)
+        return save_instance(db, instance)
 
     @router.delete("/{%s}" % id_field, responses={200: PlainOkResponse().definition})
     def delete(db: Session = Depends(get_db),
-               user_data: Base = Depends(instance_existence(query_model, id_field=id_field))):
-        delete_instance(db, instance=user_data)
+               instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
+        delete_instance(db, instance=instance)
         return PlainOkResponse().content
 
 

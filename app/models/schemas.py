@@ -1,4 +1,5 @@
-from typing import Optional, TypeVar, Generic, List, Type
+from datetime import datetime, date
+from typing import Optional, TypeVar, Generic, List
 
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
@@ -11,7 +12,7 @@ class Movie(BaseModel):
     imdb_id: Optional[int]
     tmdb_id: Optional[int] = None
     poster_path: Optional[str] = None
-    # release_date: Optional[str] = None
+    release_date: date = None
     budget: Optional[int] = None
 
     class Config:
@@ -26,7 +27,7 @@ class Rating(BaseModel):
     user: int
     movie: int
     rating: float
-    timestamp: int = None
+    timestamp: int = int(datetime.now().timestamp())
 
     class Config:
         orm_mode = True
