@@ -1,7 +1,7 @@
 from datetime import datetime, date
-from typing import Optional, TypeVar, Generic, List
+from typing import TypeVar, Generic, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 from pydantic.generics import GenericModel
 
 T = TypeVar('T')
@@ -9,11 +9,11 @@ T = TypeVar('T')
 
 class Movie(BaseModel):
     title: str
-    imdb_id: Optional[int]
-    tmdb_id: Optional[int] = None
-    poster_path: Optional[str] = None
+    imdb_id: int
+    tmdb_id: int = None
+    poster_path: HttpUrl = None
     release_date: date = None
-    budget: Optional[int] = None
+    budget: int = None
 
     class Config:
         orm_mode = True
@@ -41,6 +41,16 @@ class Page(GenericModel, Generic[T]):
     has_next: bool
     has_prev: bool
     items: List[T]
+
+    class Config:
+        orm_mode = True
+
+
+class Tag(BaseModel):
+    user: int
+    movie: int
+    name: str
+    timestamp: int
 
     class Config:
         orm_mode = True

@@ -1,15 +1,7 @@
-from typing import List
-
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-from app.models import schemas, models
-from app.service import movie_service
-from app.database import SessionLocal, engine
-from app.controllers import movie_controller, rating_controller
-from sqlalchemy.schema import MetaData
-
+from app.controllers import movie_controller, rating_controller, tag_controller
 
 app = FastAPI()
 
@@ -26,6 +18,14 @@ app.include_router(
     rating_controller.router,
     prefix="/rating",
     tags=["Rating"],
+    responses={404: {"description": "Not found"}},
+)
+
+
+app.include_router(
+    tag_controller.router,
+    prefix="/tag",
+    tags=["Tags"],
     responses={404: {"description": "Not found"}},
 )
 
