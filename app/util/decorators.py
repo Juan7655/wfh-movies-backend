@@ -1,6 +1,8 @@
-from fastapi import Depends
+from fastapi import Depends, Query
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.database import Base, get_db
 from app.models.schemas import Page
@@ -10,8 +12,14 @@ from app.util.commons import create_instance, delete_instance, instance_existenc
 
 def crud(router, read_model: BaseModel, write_model: BaseModel, query_model: Base, id_field: str):
     @router.get('', response_model=Page[read_model])
-    def read_all(limit: int = 10, page: int = 1, db: Session = Depends(get_db)):
+    def read_all(limit: int = Query(10, description='Max number of items per page'),
+                 page: int = 1,
+                 db: Session = Depends(get_db),
+                 sort: List[str] = Query(None, description="Sorting parameter given in the "
+                                                           "format field.[asc|desc]")):
         query = db.query(query_model)
+        for i in sort:
+            query = query.order_by(text(i.replace('.', ' ')))
         return paginator(query, page_number=page, per_page_limit=limit)
 
     @router.post('', response_model=read_model)
