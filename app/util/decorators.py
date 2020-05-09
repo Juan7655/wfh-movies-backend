@@ -1,13 +1,13 @@
-from fastapi import Depends, Query
-from pydantic import BaseModel
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 from typing import List
 
+from fastapi import Depends, Query
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from app.database import Base, get_db
-from app.models.schemas import Page
+from app.models.schemas import Page, BaseModel
 from app.util.commons import create_instance, delete_instance, instance_existence, save_instance, \
-    PlainOkResponse, paginator
+    PlainOkResponse, paginator, Filter
 
 
 def crud(router, read_model: BaseModel, write_model: BaseModel, query_model: Base, id_field: str):
@@ -15,9 +15,12 @@ def crud(router, read_model: BaseModel, write_model: BaseModel, query_model: Bas
     def read_all(limit: int = Query(10, description='Max number of items per page'),
                  page: int = 1,
                  db: Session = Depends(get_db),
-                 sort: List[str] = Query(None, description="Sorting parameter given in the "
-                                                           "format field.[asc|desc]")):
+                 sort: List[str] = Query([], description="Sorting parameter given in the "
+                                                         "format field.[asc|desc]"),
+                 filter: List[str] = Query([], description=Filter.docs)):
         query = db.query(query_model)
+        for i in filter:
+            query = query.filter(Filter(i, query_model).evaluate())
         for i in sort:
             query = query.order_by(text(i.replace('.', ' ')))
         return paginator(query, page_number=page, per_page_limit=limit)

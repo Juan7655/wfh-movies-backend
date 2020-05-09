@@ -63,3 +63,46 @@ def paginator(query, page_number, per_page_limit):
         'has_prev': has_prev,
         'items': items
     }
+
+
+class Filter:
+    operators = {
+        'exact': {
+            'description': "Matches the exact value. Equivalent to <field = 'value'>",
+            'expression': lambda column: column.__eq__},
+        'partial': {
+            'description':
+                "Matches the value as contained in the field. Equivalent to <field LIKE '%value%'>",
+            'expression': lambda column: lambda value: column.like(f'%{value}%')},
+        'start': {
+            'description':
+                "Matches the value as start of field. Equivalent to <field LIKE 'value%'>",
+            'expression': lambda column: lambda value: column.like(f'{value}%')},
+        'end': {
+            'description': "Matches the value as end of field. Equivalent to <field LIKE '%value'>",
+            'expression': lambda column: lambda value: column.like(f'%{value}')},
+        'word_start': {
+            'description':
+                "Matches the start of any word in the field. Equivalent to <field LIKE '% value%'>",
+            'expression': lambda column: lambda value: column.like(f'% {value}%')},
+        'in': {
+            'description':
+                "Matches any field whose value is in the given set. Equivalent to "
+                "<field IN (value1, value2, ...)>.<br>Value format should be a list of values "
+                "separated by pipe symbol (e.g. in(genre, [drama|romantic|action]))",
+            'expression': lambda column: lambda values: column.in_(values[1:-1].split('|'))},
+    }
+
+    docs = "Filter data. Input format: operation(field, value). Available operations: <br>" \
+           + '\n'.join([f'<br>**-{k}**: ' + v.get('description') for k, v in operators.items()])
+
+    def __init__(self, expression: str, model: Base):
+        operator, expression = tuple(expression.split('(', 1))
+        self.model = model
+        self.operator = self.operators.get(operator).get('expression')
+        self.column, expression = tuple(expression.split(', ', 1))
+        self.value, expression = tuple(expression.split(')', 1))
+
+
+def evaluate(self):
+    return self.operator(getattr(self.model, self.column))(self.value)
