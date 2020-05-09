@@ -17,7 +17,7 @@ sys.path = ['', '..'] + sys.path[1:]
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-from models import models
+from app.models import models
 
 # target_metadata = mymodel.Base.metadata
 target_metadata = models.Base.metadata
