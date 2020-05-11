@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type
 
 from fastapi import Depends, Query
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from app.service.commons import create_instance, delete_instance, instance_exist
     PlainOkResponse, paginator, Filter, query_objects, update_instance_data
 
 
-def crud(router, read_model: BaseModel, write_model: BaseModel, query_model: Base, id_field: str):
+def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], query_model: Base, id_field: str):
     @router.get('', response_model=Page[read_model])
     def read_all(
             db: Session = Depends(get_db),

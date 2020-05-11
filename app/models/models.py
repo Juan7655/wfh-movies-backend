@@ -37,7 +37,7 @@ class Tag(Base):
 
     user = Column(Integer, ForeignKey("users.id"), primary_key=True)
     movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String, nullable=False, primary_key=True)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
 
