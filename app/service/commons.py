@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Type
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
+from app.util.errors import InvalidParameter, ResourceDoesNotExist, ResourceAlreadyExists
 
 
 class PlainOkResponse(BaseModel):
@@ -20,11 +21,12 @@ def instance_existence(model: Base, id_field: str, should_exist=True):
         else:
             filters = {id_field: id_value}
         db_instance = db.query(model).filter_by(**filters).first()
-        if should_exist == (db_instance is None):
-            raise HTTPException(
-                status_code=404 if should_exist else 400,
-                detail=model.__name__ + (" not found" if should_exist else " already exists")
-            )
+        if should_exist and db_instance is None:
+            error = ResourceDoesNotExist(model.__name__)
+            raise HTTPException(error.status_code, error.content)
+        elif not should_exist and db_instance is not None:
+            error = ResourceAlreadyExists(model.__name__)
+            raise HTTPException(error.status_code, error.content)
         return db_instance
 
     return wrapped
@@ -53,7 +55,7 @@ def paginator(query, page_number, per_page_limit):
     has_next = page_number < total_pages
     has_prev = page_number > 1
     if not (0 < page_number <= total_pages):
-        raise Exception('page number exceeds limits')
+        raise InvalidParameter('page number exceeds limits')
     offset = (page_number - 1) * per_page_limit
     items = query.offset(offset).limit(per_page_limit).all()
 
@@ -131,7 +133,7 @@ def apply_sorts(query, sort: List[str] = ()):
         expression = i.replace('.', ' ')
         split = i.split('.')
         if len(split) != 2 or split[1] not in ['asc', 'desc']:
-            raise Exception
+            raise InvalidParameter('Sorting format must be in the form of <field>.<asc|desc>')
 
         query = query.order_by(text(expression))
     return query
@@ -142,3 +144,11 @@ def update_instance_data(data, instance, db: Session):
         getattr(instance, k)
         setattr(instance, k, v)
     return save_instance(db_instance=instance, db=db)
+
+
+def error_docs(resource_name, *args: Type[Exception]):
+    default = {404: "Unknown error"}
+    return {
+        k: {"description": v.replace('resource', resource_name)} for error in args
+        for k, v in getattr(error, 'docs', default).items()
+    }

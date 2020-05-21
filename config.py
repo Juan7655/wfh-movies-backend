@@ -1,5 +1,8 @@
 from pydantic import BaseSettings
-import os
+import logging
+
+log = logging.getLogger("api")
+log.setLevel(level=logging.DEBUG)
 
 
 class Settings(BaseSettings):
