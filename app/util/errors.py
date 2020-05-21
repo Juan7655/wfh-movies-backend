@@ -2,12 +2,6 @@ class HeyMovieError(AssertionError):
     pass
 
 
-class DatabaseError(HeyMovieError):
-    status_code = 432
-    content = 'DATABASE ERROOOOOOOR'
-    docs = {status_code: content}
-
-
 class InvalidParameter(HeyMovieError):
     status_code = 400
     content = 'The given parameter is invalid'
