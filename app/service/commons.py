@@ -106,7 +106,7 @@ class Filter:
         self.model = model
         self.operator = self.operators.get(operator).get('expression')
         self.column, expression = tuple(expression.split(', ', 1))
-        self.value, expression = tuple(expression.split(')', 1))
+        self.value = expression[:-1]
 
     def evaluate(self):
         return self.operator(getattr(self.model, self.column))(self.value)
