@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -21,6 +22,7 @@ class Movie(Base):
     poster_path = Column(String, nullable=True)
     release_date = Column(Date, nullable=True)
     budget = Column(Integer, nullable=True)
+    genres = relationship("MovieGenre", backref="movie_genre")
 
 
 class Rating(Base):

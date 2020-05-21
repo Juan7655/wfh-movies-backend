@@ -7,6 +7,13 @@ from pydantic.generics import GenericModel
 T = TypeVar('T')
 
 
+class MovieGenre(BaseModel):
+    genre: str
+
+    class Config:
+        orm_mode = True
+
+
 class Movie(BaseModel):
     title: str
     imdb_id: int
@@ -21,6 +28,7 @@ class Movie(BaseModel):
 
 class MovieRead(Movie):
     id: int
+    genres: List[MovieGenre] = []
 
 
 class Rating(BaseModel):
