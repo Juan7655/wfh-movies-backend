@@ -22,6 +22,8 @@ class Movie(Base):
     poster_path = Column(String, nullable=True)
     release_date = Column(Date, nullable=True)
     budget = Column(Integer, nullable=True)
+    rating = Column(Float, nullable=False, default=0)
+    vote_count = Column(Integer, nullable=False, default=0)
     genres = relationship("MovieGenre", backref="movie_genre")
 
 
@@ -32,6 +34,12 @@ class Rating(Base):
     movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
     rating = Column(Float, nullable=False)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+
+    def __init__(self, user, movie, rating, timestamp):
+        self.user = user
+        self.movie = movie
+        self.rating = rating
+        self.timestamp = timestamp
 
 
 class Tag(Base):
