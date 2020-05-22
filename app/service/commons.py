@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Type
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
+from app.util.errors import InvalidParameter, ResourceDoesNotExist, ResourceAlreadyExists
 
 
 class PlainOkResponse(BaseModel):
@@ -20,11 +21,12 @@ def instance_existence(model: Base, id_field: str, should_exist=True):
         else:
             filters = {id_field: id_value}
         db_instance = db.query(model).filter_by(**filters).first()
-        if should_exist == (db_instance is None):
-            raise HTTPException(
-                status_code=404 if should_exist else 400,
-                detail=model.__name__ + (" not found" if should_exist else " already exists")
-            )
+        if should_exist and db_instance is None:
+            error = ResourceDoesNotExist(model.__name__)
+            raise HTTPException(error.status_code, error.content)
+        elif not should_exist and db_instance is not None:
+            error = ResourceAlreadyExists(model.__name__)
+            raise HTTPException(error.status_code, error.content)
         return db_instance
 
     return wrapped
@@ -53,7 +55,7 @@ def paginator(query, page_number, per_page_limit):
     has_next = page_number < total_pages
     has_prev = page_number > 1
     if not (0 < page_number <= total_pages):
-        raise Exception('page number exceeds limits')
+        raise InvalidParameter('page number exceeds limits')
     offset = (page_number - 1) * per_page_limit
     items = query.offset(offset).limit(per_page_limit).all()
 
@@ -88,11 +90,11 @@ class Filter:
             'description':
                 "Matches the start of any word in the field. Equivalent to <field LIKE '% value%'>",
             'expression': lambda column: lambda value: column.like(f'% {value}%')},
-        'in': {
+        'anyOf': {
             'description':
-                "Matches any field whose value is in the given set. Equivalent to "
+                "Matches any field whose value is any from the given set. Equivalent to "
                 "<field IN (value1, value2, ...)>.<br>Value format should be a list of values "
-                "separated by pipe symbol (e.g. in(genre, [drama|romantic|action]))",
+                "separated by pipe symbol (e.g. anyOf(budget, [1|10|100]))",
             'expression': lambda column: lambda values: column.in_(values[1:-1].split('|'))},
     }
 
@@ -104,25 +106,28 @@ class Filter:
         self.model = model
         self.operator = self.operators.get(operator).get('expression')
         self.column, expression = tuple(expression.split(', ', 1))
-        self.value, expression = tuple(expression.split(')', 1))
+        self.value = expression[:-1]
 
     def evaluate(self):
-        return self.operator(getattr(self.model, self.column))(self.value)
+        criteria = self.operator(getattr(self.model, self.column))(self.value)
+        return criteria if type(criteria) == tuple else (criteria,)
 
 
 def query_objects(query_model,
                   db: Session,
                   filters: List[str] = (),
-                  sort: List[str] = ()):
+                  sort: List[str] = (),
+                  filter_model: Type[Filter] = Filter):
     query = db.query(query_model)
-    query = apply_filters(query, query_model, filters)
+    query = apply_filters(query, query_model, filters, filter_model)
     query = apply_sorts(query, sort)
     return query
 
 
-def apply_filters(query, query_model, filters: List[str] = ()):
+def apply_filters(query, query_model, filters: List[str] = (), filter_model: Type[Filter] = Filter):
     for i in filters:
-        query = query.filter(Filter(i, query_model).evaluate())
+        criteria = filter_model(i, query_model).evaluate()
+        query = query.filter(*criteria)
     return query
 
 
@@ -131,7 +136,7 @@ def apply_sorts(query, sort: List[str] = ()):
         expression = i.replace('.', ' ')
         split = i.split('.')
         if len(split) != 2 or split[1] not in ['asc', 'desc']:
-            raise Exception
+            raise InvalidParameter('Sorting format must be in the form of <field>.<asc|desc>')
 
         query = query.order_by(text(expression))
     return query
@@ -142,3 +147,11 @@ def update_instance_data(data, instance, db: Session):
         getattr(instance, k)
         setattr(instance, k, v)
     return save_instance(db_instance=instance, db=db)
+
+
+def error_docs(resource_name, *args: Type[Exception]):
+    default = {404: "Unknown error"}
+    return {
+        k: {"description": v.replace('resource', resource_name)} for error in args
+        for k, v in getattr(error, 'docs', default).items()
+    }
