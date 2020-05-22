@@ -15,6 +15,12 @@ class TestMovies(CrudBaseTest):
         }
         super().setup()
 
+    def test_update_item_successfully(self, web_client, **kwargs):
+        super().test_update_item_successfully(web_client, imdb_id=2, **kwargs)
+
+    def test_create_item_already_created_should_return_error(self, web_client):
+        pass
+
 
 class TestRatings(CrudBaseTest):
     def setup(self):
@@ -27,6 +33,15 @@ class TestRatings(CrudBaseTest):
             'rating': 3.5,
         }
         super().setup()
+
+    def test_update_item_successfully(self, web_client, **kwargs):
+        super().test_update_item_successfully(web_client, rating=4.5, **kwargs)
+
+    def test_get_all_with_filters(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_filters(web_client, field_name=field_name)
+
+    def test_get_all_with_sorts(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_sorts(web_client, field_name=field_name)
 
 
 class TestTags(CrudBaseTest):
@@ -41,3 +56,18 @@ class TestTags(CrudBaseTest):
             'timestamp': 1,
         }
         super().setup()
+
+    def test_get_one_item_successfully(self, web_client, entity_id='Tag1'):
+        super().test_get_one_item_successfully(web_client, entity_id)
+
+    def test_delete_item_successfully(self, web_client, entity_id='Tag1'):
+        super().test_delete_item_successfully(web_client, entity_id)
+
+    def test_update_item_successfully(self, web_client, entity_id='Tag1', **kwargs):
+        super().test_update_item_successfully(web_client, entity_id, timestamp=2, **kwargs)
+
+    def test_get_all_with_filters(self, web_client, field_name='name'):
+        super().test_get_all_with_filters(web_client, field_name=field_name)
+
+    def test_get_all_with_sorts(self, web_client, field_name='name'):
+        super().test_get_all_with_sorts(web_client, field_name=field_name)

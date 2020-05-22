@@ -12,10 +12,11 @@ app = FastAPI(debug=True)
 
 @app.exception_handler(SQLAlchemyError)
 async def validation_exception_handler(request, exc):
-    log.debug(f"SQLAlchemy found an error: {exc.orig}")
+    content = str(getattr(exc, 'orig', repr(exc)))
+    log.debug(f"SQLAlchemy found an error: {content}")
     return JSONResponse(
         status_code=400,
-        content={"detail": "Database Error", "body": str(exc.orig).split('\n')[0]},
+        content={"detail": "Database Error", "body": content.split('\n')[0]},
     )
 
 
