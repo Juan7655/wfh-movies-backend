@@ -12,7 +12,8 @@ from app.util.decorators import error_handling
 from app.util.errors import InvalidParameter, ResourceAlreadyExists, ResourceDoesNotExist
 
 
-def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], query_model: Base, id_field: str):
+def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], query_model: Base, id_field: str,
+         filter_model: Type[Filter] = Filter):
     entity_name = query_model.__name__
 
     @router.get('', response_model=Page[read_model], responses=error_docs(entity_name, InvalidParameter))
@@ -23,9 +24,9 @@ def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], quer
             page: int = 1,
             sort: List[str] = Query([], description="Sorting parameter given in the format field."
                                                     "{asc|desc} (e.g. title.asc)"),
-            filters: List[str] = Query([], description=Filter.docs, alias='filter')
+            filters: List[str] = Query([], description=filter_model.docs, alias='filter')
     ):
-        query = query_objects(db=db, query_model=query_model, filters=filters, sort=sort)
+        query = query_objects(db=db, query_model=query_model, filters=filters, sort=sort, filter_model=filter_model)
         return paginator(query, page_number=page, per_page_limit=limit)
 
     @router.post('', response_model=read_model, responses=error_docs(entity_name, ResourceAlreadyExists))

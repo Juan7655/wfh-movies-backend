@@ -90,11 +90,11 @@ class Filter:
             'description':
                 "Matches the start of any word in the field. Equivalent to <field LIKE '% value%'>",
             'expression': lambda column: lambda value: column.like(f'% {value}%')},
-        'in': {
+        'anyOf': {
             'description':
-                "Matches any field whose value is in the given set. Equivalent to "
+                "Matches any field whose value is any from the given set. Equivalent to "
                 "<field IN (value1, value2, ...)>.<br>Value format should be a list of values "
-                "separated by pipe symbol (e.g. in(genre, [drama|romantic|action]))",
+                "separated by pipe symbol (e.g. anyOf(budget, [1|10|100]))",
             'expression': lambda column: lambda values: column.in_(values[1:-1].split('|'))},
     }
 
@@ -109,22 +109,25 @@ class Filter:
         self.value = expression[:-1]
 
     def evaluate(self):
-        return self.operator(getattr(self.model, self.column))(self.value)
+        criteria = self.operator(getattr(self.model, self.column))(self.value)
+        return criteria if type(criteria) == tuple else (criteria,)
 
 
 def query_objects(query_model,
                   db: Session,
                   filters: List[str] = (),
-                  sort: List[str] = ()):
+                  sort: List[str] = (),
+                  filter_model: Type[Filter] = Filter):
     query = db.query(query_model)
-    query = apply_filters(query, query_model, filters)
+    query = apply_filters(query, query_model, filters, filter_model)
     query = apply_sorts(query, sort)
     return query
 
 
-def apply_filters(query, query_model, filters: List[str] = ()):
+def apply_filters(query, query_model, filters: List[str] = (), filter_model: Type[Filter] = Filter):
     for i in filters:
-        query = query.filter(Filter(i, query_model).evaluate())
+        criteria = filter_model(i, query_model).evaluate()
+        query = query.filter(*criteria)
     return query
 
 
