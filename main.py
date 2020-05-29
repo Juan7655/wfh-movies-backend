@@ -1,11 +1,16 @@
+from datetime import datetime as dt
+
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
 from app.controllers import movie_controller, rating_controller, tag_controller, genre_controller
-from config import log
+from app.database import get_db
+from app.models.models import Request as RequestModel
+from app.service.commons import save_instance
+from config import log, settings
 
 app = FastAPI(debug=True)
 
@@ -26,6 +31,28 @@ async def validation_exception_handler(request, exc):
         status_code=400,
         content={"detail": "Validation Error", "body": str(exc).split('\nbody -> data -> ')[1:]},
     )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = dt.now().timestamp()
+    response = await call_next(request)
+    if not settings.audit:
+        return response
+    end_time = dt.now().timestamp()
+    db = next(get_db())
+
+    instance = RequestModel(
+        path=str(request.url).replace('%20', ' ').replace('%28', '(').replace('%7C', '|').replace('%29', ')'),
+        verb=request.method,
+        start_time=start_time,
+        end_time=end_time,
+        response_status_code=response.status_code
+    )
+    save_instance(db=db, db_instance=instance)
+
+    response.headers["X-Process-Time"] = str(end_time-start_time)
+    return response
 
 
 app.include_router(
