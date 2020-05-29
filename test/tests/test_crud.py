@@ -1,9 +1,9 @@
 from pytest import fixture
 
 from test.tests.base_crud import CrudBaseTest
-from app.models.models import Movie, Rating, Tag
+from app.models.models import Movie, Rating, Tag, Genre
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema
+    Tag as TagSchema, Genre as GenreSchema
 
 
 class TestMovies(CrudBaseTest):
@@ -79,3 +79,25 @@ class TestTags(CrudBaseTest):
 
     def test_get_all_with_sorts(self, web_client, field_name='name'):
         super().test_get_all_with_sorts(web_client, field_name=field_name)
+
+
+class TestGenres(CrudBaseTest):
+    genre = 'new-test-genre'
+
+    def setup(self):
+        self.entity = Genre
+        self.write_schema = GenreSchema
+        self.read_schema = GenreSchema
+        self.entity_json = {
+            'id': self.genre,
+        }
+        super().setup()
+
+    def test_get_one_item_successfully(self, web_client, entity_id=genre):
+        super().test_get_one_item_successfully(web_client, entity_id)
+
+    def test_delete_item_successfully(self, web_client, entity_id=genre):
+        super().test_delete_item_successfully(web_client, entity_id)
+
+    def test_update_item_successfully(self, web_client, entity_id=genre, **kwargs):
+        super().test_update_item_successfully(web_client, entity_id, **kwargs)

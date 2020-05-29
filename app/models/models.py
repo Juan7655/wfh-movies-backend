@@ -24,7 +24,7 @@ class Movie(Base):
     budget = Column(Integer, nullable=True)
     rating = Column(Float, nullable=False, default=0)
     vote_count = Column(Integer, nullable=False, default=0)
-    genres = relationship("MovieGenre", backref="movie_genre")
+    genres = Column(String, nullable=False, server_default='')
 
 
 class Rating(Base):
@@ -55,10 +55,3 @@ class Genre(Base):
     __tablename__ = "genre"
 
     id = Column(String, primary_key=True, index=True)
-
-
-class MovieGenre(Base):
-    __tablename__ = "movie_genre"
-
-    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
-    genre = Column(String, ForeignKey("genre.id"), primary_key=True)
