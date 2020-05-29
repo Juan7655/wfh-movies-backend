@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
-from app.controllers import movie_controller, rating_controller, tag_controller
+from app.controllers import movie_controller, rating_controller, tag_controller, genre_controller
 from config import log
 
 app = FastAPI(debug=True)
@@ -12,10 +12,11 @@ app = FastAPI(debug=True)
 
 @app.exception_handler(SQLAlchemyError)
 async def validation_exception_handler(request, exc):
-    log.debug(f"SQLAlchemy found an error: {exc.orig}")
+    content = str(getattr(exc, 'orig', repr(exc)))
+    log.debug(f"SQLAlchemy found an error: {content}")
     return JSONResponse(
         status_code=400,
-        content={"detail": "Database Error", "body": str(exc.orig).split('\n')[0]},
+        content={"detail": "Database Error", "body": content.split('\n')[0]},
     )
 
 
@@ -43,6 +44,12 @@ app.include_router(
     tag_controller.router,
     prefix="/tag",
     tags=["Tags"],
+)
+
+app.include_router(
+    genre_controller.router,
+    prefix="/genre",
+    tags=["Genres"],
 )
 
 if __name__ == "__main__":

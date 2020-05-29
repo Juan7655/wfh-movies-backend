@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from app.controllers.base_controller import crud
 from app.models import schemas, models
-from app.service.commons import Filter
+from app.service.commons import Filter, create_instance, save_instance
 
 router = APIRouter()
 
@@ -16,9 +16,9 @@ class MovieFilter(Filter):
                 "related genres include the given values'. Formally, the semantics are interpreted as 'select movies "
                 "whose genre set is a superset of the set of input values'. That is, **Movie.genres >= values**"
                 "<br>Value format should be a list of values separated by pipe symbol "
-                "(e.g. superset(genre, [drama|romantic|action]))",
+                "(e.g. superset(genres, [drama|romantic|action]))",
             'expression':
-                lambda col: lambda vals: tuple(col.any(models.MovieGenre.genre == v) for v in vals[1:-1].split('|'))
+                lambda col: lambda vals: tuple(col.like(f'%{v}%') for v in vals[1:-1].split('|'))
         }
     }
 
@@ -26,4 +26,12 @@ class MovieFilter(Filter):
            + '\n'.join([f'<br>**-{k}**: ' + v.get('description') for k, v in operators.items()])
 
 
-crud(router, schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter)
+def create(db, instance: models.Movie, model):
+    genres = instance.genres.split('|')
+    new_genres = [models.Genre(id=g) for g in genres if db.query(models.Genre).filter_by(id=g).first() is None]
+    [save_instance(genre, db=db) for genre in new_genres]
+
+    return create_instance(db=db, instance=instance, model=model)
+
+
+crud(router, schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter, post=create)
