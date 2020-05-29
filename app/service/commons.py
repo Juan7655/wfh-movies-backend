@@ -3,6 +3,7 @@ from typing import List, Type
 from fastapi import Depends, Path, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
@@ -14,18 +15,16 @@ class PlainOkResponse(BaseModel):
     definition: dict = {"content": {'application/json': {'example': content}}}
 
 
-def instance_existence(model: Base, id_field: str, should_exist=True):
+def instance_existence(model: Base, id_field: str):
     def wrapped(id_value: str = Path(..., alias=id_field), db: Session = Depends(get_db)) -> Base:
-        if type(id_value) is str:
+        if type(id_value) == str:
             filters = {k: v for k, v in zip(id_field.split('_'), id_value.split('_'))}
         else:
             filters = {id_field: id_value}
         db_instance = db.query(model).filter_by(**filters).first()
-        if should_exist and db_instance is None:
+
+        if db_instance is None:
             error = ResourceDoesNotExist(model.__name__)
-            raise HTTPException(error.status_code, error.content)
-        elif not should_exist and db_instance is not None:
-            error = ResourceAlreadyExists(model.__name__)
             raise HTTPException(error.status_code, error.content)
         return db_instance
 
@@ -38,9 +37,12 @@ def create_instance(db: Session, instance: BaseModel, model: Base):
 
 
 def save_instance(db_instance, db: Session):
-    db.add(db_instance)
-    db.commit()
-    db.refresh(db_instance)
+    try:
+        db.add(db_instance)
+        db.commit()
+        db.refresh(db_instance)
+    except IntegrityError as err:
+        raise ResourceAlreadyExists(type(db_instance).__name__)
     return db_instance
 
 

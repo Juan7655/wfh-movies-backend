@@ -28,6 +28,8 @@ class Movie(BaseModel):
 
 class MovieRead(Movie):
     id: int
+    rating: float
+    vote_count: int
     genres: List[MovieGenre] = []
 
 
