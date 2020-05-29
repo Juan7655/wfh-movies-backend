@@ -16,9 +16,9 @@ class MovieFilter(Filter):
                 "related genres include the given values'. Formally, the semantics are interpreted as 'select movies "
                 "whose genre set is a superset of the set of input values'. That is, **Movie.genres >= values**"
                 "<br>Value format should be a list of values separated by pipe symbol "
-                "(e.g. superset(genre, [drama|romantic|action]))",
+                "(e.g. superset(genres, [drama|romantic|action]))",
             'expression':
-                lambda col: lambda vals: tuple(col.any(models.MovieGenre.genre == v) for v in vals[1:-1].split('|'))
+                lambda col: lambda vals: tuple(col.like(f'%{v}%') for v in vals[1:-1].split('|'))
         }
     }
 
