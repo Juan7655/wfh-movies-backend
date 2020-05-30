@@ -1,4 +1,4 @@
-from pytest import fixture
+from pytest import fixture, mark
 
 from test.tests.base_crud import CrudBaseTest
 from app.models.models import Movie, Rating, Tag, Genre
@@ -50,6 +50,28 @@ class TestRatings(CrudBaseTest):
 
     def test_get_all_with_sorts(self, web_client, field_name='timestamp'):
         super().test_get_all_with_sorts(web_client, field_name=field_name)
+
+    @mark.parametrize('n', list(range(0, 10, 3)))
+    def test_movie_ratings_change_on_insertion(self, web_client, n):
+        """Pre-Condition: no ratings registered. Movie ratings values default to 0"""
+        response = web_client.get('/movie/1')
+        json = response.json()
+        assert response.status_code == 200
+        assert json.get('rating') == 0
+        assert json.get('vote_count') == 0
+
+        """When registering several ratings"""
+        ratings = [v * 5 / n for v in range(n)]
+        for i, rating in enumerate(ratings):
+            response = web_client.post(self.path, json={**self.entity_json, 'user': i, 'rating': rating})
+            assert response.status_code == 200
+
+        """The value of rating for the related movie should resemble data in DB"""
+        response = web_client.get('/movie/1')
+        json = response.json()
+        assert response.status_code == 200
+        assert json.get('rating') == sum(ratings) / max(n, 1)
+        assert json.get('vote_count') == n
 
 
 class TestTags(CrudBaseTest):
