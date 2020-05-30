@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date
-from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -55,3 +54,14 @@ class Genre(Base):
     __tablename__ = "genre"
 
     id = Column(String, primary_key=True, index=True)
+
+
+class Request(Base):
+    __tablename__ = "request"
+
+    id = Column(Integer, primary_key=True, index=True)
+    path = Column(String, nullable=False)
+    verb = Column(String, nullable=False)
+    response_status_code = Column(String)
+    start_time = Column(Float, nullable=False)
+    end_time = Column(Float)
