@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean
 
 from app.database import Base
 
@@ -65,3 +65,4 @@ class Request(Base):
     response_status_code = Column(String)
     start_time = Column(Float, nullable=False)
     end_time = Column(Float)
+    with_token = Column(Boolean, default=False)
