@@ -1,44 +1,14 @@
-from sqlalchemy import create_engine
-import psycopg2 as psycopg2
-from contextlib import contextmanager
-import pandas as pd
-import requests
 import math
 
-host = "localhost"
-database = "wfh-movies"
-user = "postgres"
-password = "admin123"
+import pandas as pd
+import requests
+from sqlalchemy import create_engine
+
+from extras.db_manager import decorator, user, password, host, database
+
 data_path = "data/ml-latest-small/%s.csv"
 movie_db_api_key = '0c40466fd15a9554a83e25730302cb92'
 movie_db_host = 'https://api.themoviedb.org/3/%s?api_key=' + movie_db_api_key
-
-
-@contextmanager
-def open_cursor():
-    conn = None
-    try:
-        conn = psycopg2.connect(host=host, database=database, user=user, password=password)
-        cur = conn.cursor()
-        yield cur
-        conn.commit()
-    except (psycopg2.DatabaseError, Exception) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
-
-
-def decorator(fun):
-    def wrapped(fetchall: bool = None, *args, **kwargs):
-        result = None
-        with open_cursor() as cur:
-            cur.execute(fun(*args, **kwargs))
-            if fetchall is not None:
-                result = cur.fetchall() if fetchall else cur.fetchone()[0]
-        return result
-
-    return wrapped
 
 
 def get_movie_info(movie):
@@ -104,8 +74,8 @@ def upload_data():
     print('Complete migration for tables Movie, Genre, Movie_Genre')
 
     print('Reading Rating and Tag data')
-    df_ratings = pd.read_csv('data/ml-latest-small/ratings.csv')
-    df_tags = pd.read_csv('data/ml-latest-small/tags.csv')
+    df_ratings = pd.read_csv('../data/ml-latest-small/ratings.csv')
+    df_tags = pd.read_csv('../data/ml-latest-small/tags.csv')
     print('Creating users')
     users = df_ratings.userId.append(df_tags.userId).unique()
     create_users(users=users)
