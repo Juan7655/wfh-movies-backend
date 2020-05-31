@@ -75,7 +75,20 @@ Filter data. Input format: operation(field, value). Available operations:
 
 - ****anyOf****: Matches any field whose value is any from the given set.
 
-In the case of movies exist an aditional filter for the genre:
+- ****lt****: Matches any field whose value is less than the input value. Equivalent to `field < value`.
+Only for use in comparable (i.e. numeric) fields
+
+- ****le****: Matches any field whose value is less than or equal to the input value. Equivalent to `field <= value`.
+Only for use in comparable (i.e. numeric) fields
+
+- ****gt****: Matches any field whose value is greater than the input value. Equivalent to `field > value`.
+Only for use in comparable (i.e. numeric) fields
+
+- ****ge****: Matches any field whose value is greater than or equal to the input value. Equivalent to `field >= value`.
+Only for use in comparable (i.e. numeric) fields
+
+
+In the case of movies exist an additional filter for the genre:
 
 - ****superset****:  Allows to filter by one or more genres.
 

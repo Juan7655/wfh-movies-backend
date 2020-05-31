@@ -12,11 +12,7 @@ class MovieFilter(Filter):
         **Filter.operators,
         'superset': {
             'description':
-                "Currently only working to match Movies Genres. The operation should be read as 'select movies whose "
-                "related genres include the given values'. Formally, the semantics are interpreted as 'select movies "
-                "whose genre set is a superset of the set of input values'. That is, **Movie.genres >= values**"
-                "<br>Value format should be a list of values separated by pipe symbol "
-                "(e.g. superset(genres, [drama|romantic|action]))",
+                "superset(field: column[str], values: List[str]) -> `all(substring IN field for substring in values)`",
             'expression':
                 lambda col: lambda vals: tuple(col.like(f'%{v}%') for v in vals[1:-1].split('|'))
         }

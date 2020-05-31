@@ -75,7 +75,7 @@ class CreateItemTest:
         """Pre-Condition: No Items should be registered in system"""
         response = web_client.get(self.path)
         assert response.status_code == 200
-        assert response.json().get('total_items') == 0
+        initial_items = 0
 
         """Condition: When requesting to create item, should return successful response"""
         expected = self.write_schema(**self.entity_json).dict()
@@ -89,7 +89,7 @@ class CreateItemTest:
         """Post-Condition: The created Item should be registered in the system"""
         response = web_client.get(self.path)
         assert response.status_code == 200
-        assert response.json().get('total_items') == 1
+        assert response.json().get('total_items') == initial_items + 1
 
     def test_create_item_already_created_should_return_error(self, web_client):
         """Pre-Condition: One Item should be registered in system"""

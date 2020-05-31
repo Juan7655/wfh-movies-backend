@@ -75,29 +75,35 @@ def paginator(query, page_number, per_page_limit):
 class Filter:
     operators = {
         'exact': {
-            'description': "Matches the exact value. Equivalent to <field = 'value'>",
+            'description': "exact(field: column[str], value: str) -> `field = 'value'`",
             'expression': lambda column: column.__eq__},
         'partial': {
-            'description':
-                "Matches the value as contained in the field. Equivalent to <field LIKE '%value%'>",
+            'description': "partial(field: column[str], value: str) -> `field LIKE '%value%'`",
             'expression': lambda column: lambda value: column.like(f'%{value}%')},
         'start': {
-            'description':
-                "Matches the value as start of field. Equivalent to <field LIKE 'value%'>",
+            'description': "start(field: column[str], value: str) -> `field LIKE 'value%'`",
             'expression': lambda column: lambda value: column.like(f'{value}%')},
         'end': {
-            'description': "Matches the value as end of field. Equivalent to <field LIKE '%value'>",
+            'description': "end(field: column[str], value: str) -> `field LIKE '%value'`",
             'expression': lambda column: lambda value: column.like(f'%{value}')},
         'word_start': {
-            'description':
-                "Matches the start of any word in the field. Equivalent to <field LIKE '% value%'>",
+            'description': "word_start(field: column[str], value: str) -> `field LIKE '% value%'`",
             'expression': lambda column: lambda value: column.like(f'% {value}%')},
         'anyOf': {
-            'description':
-                "Matches any field whose value is any from the given set. Equivalent to "
-                "<field IN (value1, value2, ...)>.<br>Value format should be a list of values "
-                "separated by pipe symbol (e.g. anyOf(budget, [1|10|100]))",
+            'description': "anyOf(field: column[Any], values: List[Any]) -> `field IN values`",
             'expression': lambda column: lambda values: column.in_(values[1:-1].split('|'))},
+        'lt': {
+            'description': "lt(field: column[Comparable], value: Comparable) -> `field < value`",
+            'expression': lambda column: lambda value: column < value},
+        'le': {
+            'description': "le(field: column[Comparable], value: Comparable) -> `field <= value`",
+            'expression': lambda column: lambda value: column <= value},
+        'gt': {
+            'description': "gt(field: column[Comparable], value: Comparable) -> `field > value`",
+            'expression': lambda column: lambda value: column > value},
+        'ge': {
+            'description': "ge(field: column[Comparable], value: Comparable) -> `field >= value`",
+            'expression': lambda column: lambda value: column >= value},
     }
 
     docs = "Filter data. Input format: operation(field, value). Available operations: <br>" \
