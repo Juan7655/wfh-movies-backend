@@ -25,6 +25,15 @@ def get_movie_info(movie):
     return movie
 
 
+def get_movie_description(title):
+    year = title.split('(')[-1][:-1]
+    movie_result = search_movie_by_title(title.replace(f'({year})', ''), year)
+    if movie_result is None:
+        print('problems with movie ', title)
+        return ''
+    return movie_result.get('overview')
+
+
 def search_movie_by_title(title: str, year: str = None, retry=0, altern=None):
     path = f'search/movie'
     formatted_title = title.replace(", The ", '').replace(', A ', '').replace(', An ', '') \
@@ -60,6 +69,18 @@ def scrape_movie_data():
     movies = pd.read_csv(data_path % 'movies')
     joined = movies.set_index('movieId').join(links.set_index('movieId'))
     return joined.apply(get_movie_info, result_type='expand', axis=1)
+
+
+@decorator
+def update_movie_description(id, description):
+    description = description.replace("'", "''")
+    return f"UPDATE movie SET description='{description}' WHERE id={id}"
+
+
+def blabla():
+    movies = get_movies_title(fetchall=True)
+    movies_descriptions = ((movie[0], get_movie_description(movie[1])) for movie in movies)
+    [update_movie_description(id=id, description=description) for id, description in movies_descriptions]
 
 
 def upload_data():
@@ -108,6 +129,11 @@ def create_movie_genre_relation(movie):
 
 
 @decorator
+def get_movies_title():
+    return f"SELECT id, title FROM movie"
+
+
+@decorator
 def create_tag(tag):
     def format_title(title):
         return title.replace("'", "''")
@@ -147,4 +173,5 @@ def create_movie(movie):
                          f"{remove_nan(movie.release_date, is_text=True)}, {remove_nan(movie.budget)})"
 
 
-upload_data()
+blabla()
+# upload_data()
