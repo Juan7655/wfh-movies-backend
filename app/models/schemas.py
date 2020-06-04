@@ -22,6 +22,7 @@ class Movie(BaseModel):
     release_date: date = None
     budget: int = None
     genres: str = ""
+    description: str = ""
 
     class Config:
         orm_mode = True
