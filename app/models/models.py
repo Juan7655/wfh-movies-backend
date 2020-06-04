@@ -24,6 +24,7 @@ class Movie(Base):
     rating = Column(Float, nullable=False, default=0)
     vote_count = Column(Integer, nullable=False, default=0)
     genres = Column(String, nullable=False, server_default='')
+    description = Column(String, nullable=True)
 
 
 class Rating(Base):
