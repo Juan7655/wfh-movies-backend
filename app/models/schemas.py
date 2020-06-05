@@ -9,6 +9,7 @@ T = TypeVar('T')
 
 class Genre(BaseModel):
     id: str
+    poster_path: HttpUrl = None
 
     class Config:
         orm_mode = True

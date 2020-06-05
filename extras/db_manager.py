@@ -1,19 +1,18 @@
-from sqlalchemy import create_engine
-import psycopg2 as psycopg2
-from contextlib import contextmanager
-import requests
+import os
 
-host = "localhost"
-database = "wfh-movies"
-user = "postgres"
-password = "admin123"
+import psycopg2 as psycopg2
+from psycopg2.extensions import parse_dsn
+from contextlib import contextmanager
+
+db_url = os.getenv('DATABASE')
+db_params = parse_dsn(db_url)
 
 
 @contextmanager
 def open_cursor():
     conn = None
     try:
-        conn = psycopg2.connect(host=host, database=database, user=user, password=password)
+        conn = psycopg2.connect(**db_params)
         cur = conn.cursor()
         yield cur
         conn.commit()

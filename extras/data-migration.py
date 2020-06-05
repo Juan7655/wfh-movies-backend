@@ -1,14 +1,14 @@
 import math
+import os
 
 import pandas as pd
 import requests
 from sqlalchemy import create_engine
 
-from extras.db_manager import decorator, user, password, host, database
+from extras.db_manager import decorator, db_url
 
 data_path = "data/ml-latest-small/%s.csv"
-movie_db_api_key = '0c40466fd15a9554a83e25730302cb92'
-movie_db_host = 'https://api.themoviedb.org/3/%s?api_key=' + movie_db_api_key
+movie_db_host = os.getenv('MOVIE_DB_HOST')
 
 
 def get_movie_info(movie):
@@ -77,10 +77,16 @@ def update_movie_description(id, description):
     return f"UPDATE movie SET description='{description}' WHERE id={id}"
 
 
-def blabla():
+def scrape_movies_descriptions():
     movies = get_movies_title(fetchall=True)
     movies_descriptions = ((movie[0], get_movie_description(movie[1])) for movie in movies)
     [update_movie_description(id=id, description=description) for id, description in movies_descriptions]
+
+
+def scrape_genres_poster_path():
+    genres = (result[0] for result in get_genres(fetchall=True))
+    posters = ((genre, get_genre_best_movie_poster(genre=genre, fetchall=False)) for genre in genres)
+    [update_genre_poster_path(genre=genre, poster_path=poster) for genre, poster in posters]
 
 
 def upload_data():
@@ -130,7 +136,24 @@ def create_movie_genre_relation(movie):
 
 @decorator
 def get_movies_title():
-    return f"SELECT id, title FROM movie"
+    return f"SELECT id, title FROM movie where description isnull"
+
+
+@decorator
+def get_genres():
+    return f"SELECT id FROM genre"
+
+
+@decorator
+def get_genre_best_movie_poster(genre):
+    return f"""SELECT poster_path FROM movie WHERE genres LIKE '%{genre}%' AND vote_count > 10 
+            ORDER BY rating DESC LIMIT 1
+            """
+
+
+@decorator
+def update_genre_poster_path(genre, poster_path):
+    return f"""UPDATE genre SET poster_path = '{poster_path}' WHERE id = '{genre}'"""
 
 
 @decorator
@@ -143,7 +166,7 @@ def create_tag(tag):
 
 
 def create_ratings(ratings):
-    engine = create_engine(f'postgresql://{user}:{password}@{host}:5432/{database}')
+    engine = create_engine(db_url)
     ratings = ratings.rename(columns={'userId': 'user', 'movieId': 'movie'})
     ratings.to_sql(name='rating', con=engine, if_exists='append', index=False)
 
@@ -173,5 +196,6 @@ def create_movie(movie):
                          f"{remove_nan(movie.release_date, is_text=True)}, {remove_nan(movie.budget)})"
 
 
-blabla()
+scrape_genres_poster_path()
+# scrape_movies_descriptions()
 # upload_data()
