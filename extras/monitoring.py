@@ -2,8 +2,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from datetime import datetime as dt
 
-from pandas import Series
-
 from extras.db_manager import decorator
 
 
@@ -15,8 +13,12 @@ def get_requests_info():
     """
 
 
+def datetime_grouping(data):
+    return [data.year, data.month, data.day, data.hour]
+
+
 def import_data():
-    columns = ['id', 'path', 'verb', 'status_code', 'start_time', 'end_time', 'duration']
+    columns = ['id', 'path', 'verb', 'status_code', 'start_time', 'end_time', 'with_token', 'duration']
     return pd.DataFrame(get_requests_info(fetchall=True), columns=columns)
 
 
@@ -40,7 +42,7 @@ def response_time_boxplot(df):
 
 def server_usage_bargraph(df):
     request_dt = df.start_time
-    request_dt.groupby([request_dt.dt.year, request_dt.dt.month, request_dt.dt.day]) \
+    request_dt.groupby(datetime_grouping(request_dt.dt)) \
         .count() \
         .plot(kind='bar')
 
@@ -58,9 +60,9 @@ def status_codes_frequencies(df):
     for code in codes:
         temp = request_dt[request_dt == code]
         temp.name = code
-        data = temp.groupby([temp.index.year, temp.index.month, temp.index.day]).count()
+
+        data = temp.groupby(datetime_grouping(temp.index)).count()
         data.plot()
-        Series.plot(data=data, kind='scatter')
 
     plt.gcf().autofmt_xdate()
     plt.xlabel('Date (yyyy, mm, dd)')

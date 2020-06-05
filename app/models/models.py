@@ -55,6 +55,7 @@ class Genre(Base):
     __tablename__ = "genre"
 
     id = Column(String, primary_key=True, index=True)
+    poster_path = Column(String, nullable=True)
 
 
 class Request(Base):
