@@ -79,7 +79,7 @@ class Filter:
             'expression': lambda column: column.__eq__},
         'partial': {
             'description': "partial(field: column[str], value: str) -> `field LIKE '%value%'`",
-            'expression': lambda column: lambda value: column.like(f'%{value}%')},
+            'expression': lambda column: lambda value: column.ilike(f'%{value}%')},
         'start': {
             'description': "start(field: column[str], value: str) -> `field LIKE 'value%'`",
             'expression': lambda column: lambda value: column.like(f'{value}%')},
