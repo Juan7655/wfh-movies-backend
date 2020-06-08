@@ -1,9 +1,9 @@
 from pytest import fixture, mark
 
 from test.tests.base_crud import CrudBaseTest
-from app.models.models import Movie, Rating, Tag, Genre, User
+from app.models.models import Movie, Rating, Tag, Genre, User, Review
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, User as UserSchema
+    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema
 
 
 class TestMovies(CrudBaseTest):
@@ -72,6 +72,34 @@ class TestRatings(CrudBaseTest):
         assert response.status_code == 200
         assert json.get('rating') == sum(ratings) / max(n, 1)
         assert json.get('vote_count') == n
+
+
+class TestReviews(CrudBaseTest):
+    @fixture(scope='function', autouse=True)
+    def create_movie(self, web_client):
+        response = web_client.post('/movie', json={'title': 'a Test Title', 'imdb_id': 1})
+        assert response.status_code == 200
+
+    def setup(self):
+        self.entity = Review
+        self.write_schema = ReviewSchema
+        self.read_schema = ReviewSchema
+        self.entity_json = {
+            'user': 1,
+            'movie': 1,
+            'comment': 'Really cool - Test comment',
+        }
+
+        super().setup()
+
+    def test_update_item_successfully(self, web_client, **kwargs):
+        super().test_update_item_successfully(web_client, comment="New updated comment", **kwargs)
+
+    def test_get_all_with_filters(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_filters(web_client, field_name=field_name)
+
+    def test_get_all_with_sorts(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_sorts(web_client, field_name=field_name)
 
 
 class TestTags(CrudBaseTest):
