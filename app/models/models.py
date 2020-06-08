@@ -9,6 +9,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    external_token = Column(String, unique=True)
 
 
 class Movie(Base):
