@@ -1,9 +1,9 @@
 from pytest import fixture, mark
 
 from test.tests.base_crud import CrudBaseTest
-from app.models.models import Movie, Rating, Tag, Genre
+from app.models.models import Movie, Rating, Tag, Genre, User
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema
+    Tag as TagSchema, Genre as GenreSchema, User as UserSchema
 
 
 class TestMovies(CrudBaseTest):
@@ -123,3 +123,16 @@ class TestGenres(CrudBaseTest):
 
     def test_update_item_successfully(self, web_client, entity_id=genre, **kwargs):
         super().test_update_item_successfully(web_client, entity_id, **kwargs)
+
+
+class TestUsers(CrudBaseTest):
+    user_id = 1
+
+    def setup(self):
+        self.entity = User
+        self.write_schema = UserSchema
+        self.read_schema = UserSchema
+        self.entity_json = {
+            'id': self.user_id,
+        }
+        super().setup()

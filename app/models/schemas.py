@@ -15,6 +15,13 @@ class Genre(BaseModel):
         orm_mode = True
 
 
+class User(BaseModel):
+    id: str
+
+    class Config:
+        orm_mode = True
+
+
 class Movie(BaseModel):
     title: str
     imdb_id: int
