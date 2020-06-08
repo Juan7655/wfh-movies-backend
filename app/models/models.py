@@ -9,6 +9,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    external_token = Column(String, unique=True)
 
 
 class Movie(Base):
@@ -35,11 +36,14 @@ class Rating(Base):
     rating = Column(Float, nullable=False)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
-    def __init__(self, user, movie, rating, timestamp):
-        self.user = user
-        self.movie = movie
-        self.rating = rating
-        self.timestamp = timestamp
+
+class Review(Base):
+    __tablename__ = "review"
+
+    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
+    comment = Column(String, nullable=False)
+    timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
 
 class Tag(Base):
@@ -48,6 +52,14 @@ class Tag(Base):
     user = Column(Integer, ForeignKey("users.id"), primary_key=True)
     movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
     name = Column(String, nullable=False, primary_key=True)
+    timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+
+
+class Watchlist(Base):
+    __tablename__ = "watchlist"
+
+    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
 

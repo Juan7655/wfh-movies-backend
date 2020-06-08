@@ -15,6 +15,14 @@ class Genre(BaseModel):
         orm_mode = True
 
 
+class User(BaseModel):
+    id: str
+    external_token: str = None
+
+    class Config:
+        orm_mode = True
+
+
 class Movie(BaseModel):
     title: str
     imdb_id: int
@@ -45,6 +53,16 @@ class Rating(BaseModel):
         orm_mode = True
 
 
+class Review(BaseModel):
+    user: int
+    movie: int
+    comment: str
+    timestamp: int = int(datetime.now().timestamp())
+
+    class Config:
+        orm_mode = True
+
+
 class Page(GenericModel, Generic[T]):
     page: int
     total_pages: int
@@ -63,6 +81,15 @@ class Tag(BaseModel):
     movie: int
     name: str
     timestamp: int
+
+    class Config:
+        orm_mode = True
+
+
+class Watchlist(BaseModel):
+    user: int
+    movie: int
+    timestamp: int = int(datetime.now().timestamp())
 
     class Config:
         orm_mode = True

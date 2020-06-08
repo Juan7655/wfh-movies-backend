@@ -6,7 +6,8 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
-from app.controllers import movie_controller, rating_controller, tag_controller, genre_controller
+from app.controllers import movie_controller, rating_controller, tag_controller, genre_controller, user_controller, \
+    review_controller, watchlist_controller
 from app.database import get_db
 from app.models.models import Request as RequestModel
 from app.service.commons import save_instance
@@ -79,6 +80,24 @@ app.include_router(
     genre_controller.router,
     prefix="/genre",
     tags=["Genres"],
+)
+
+app.include_router(
+    user_controller.router,
+    prefix="/user",
+    tags=["Users"],
+)
+
+app.include_router(
+    review_controller.router,
+    prefix="/review",
+    tags=["Reviews"],
+)
+
+app.include_router(
+    watchlist_controller.router,
+    prefix="/watchlist",
+    tags=["Watchlist"],
 )
 
 if __name__ == "__main__":
