@@ -55,6 +55,14 @@ class Tag(Base):
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
 
+class Watchlist(Base):
+    __tablename__ = "watchlist"
+
+    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
+    timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+
+
 class Genre(Base):
     __tablename__ = "genre"
 

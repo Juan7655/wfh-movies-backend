@@ -84,3 +84,12 @@ class Tag(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Watchlist(BaseModel):
+    user: int
+    movie: int
+    timestamp: int = int(datetime.now().timestamp())
+
+    class Config:
+        orm_mode = True
