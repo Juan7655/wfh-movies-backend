@@ -52,6 +52,16 @@ class Rating(BaseModel):
         orm_mode = True
 
 
+class Review(BaseModel):
+    user: int
+    movie: int
+    comment: str
+    timestamp: int = int(datetime.now().timestamp())
+
+    class Config:
+        orm_mode = True
+
+
 class Page(GenericModel, Generic[T]):
     page: int
     total_pages: int
