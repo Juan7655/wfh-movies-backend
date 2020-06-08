@@ -17,6 +17,7 @@ class Genre(BaseModel):
 
 class User(BaseModel):
     id: str
+    external_token: str = None
 
     class Config:
         orm_mode = True
