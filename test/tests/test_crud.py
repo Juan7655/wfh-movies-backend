@@ -1,9 +1,9 @@
 from pytest import fixture, mark
 
 from test.tests.base_crud import CrudBaseTest
-from app.models.models import Movie, Rating, Tag, Genre, User, Review
+from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema
+    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema
 
 
 class TestMovies(CrudBaseTest):
@@ -72,6 +72,28 @@ class TestRatings(CrudBaseTest):
         assert response.status_code == 200
         assert json.get('rating') == sum(ratings) / max(n, 1)
         assert json.get('vote_count') == n
+
+
+class TestWatchlist(CrudBaseTest):
+    def setup(self):
+        self.entity = Watchlist
+        self.write_schema = WatchlistSchema
+        self.read_schema = WatchlistSchema
+        self.entity_json = {
+            'user': 1,
+            'movie': 1,
+        }
+
+        super().setup()
+
+    def test_update_item_successfully(self, web_client, **kwargs):
+        super().test_update_item_successfully(web_client, timestamp=4, **kwargs)
+
+    def test_get_all_with_filters(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_filters(web_client, field_name=field_name)
+
+    def test_get_all_with_sorts(self, web_client, field_name='timestamp'):
+        super().test_get_all_with_sorts(web_client, field_name=field_name)
 
 
 class TestReviews(CrudBaseTest):
