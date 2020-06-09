@@ -1,7 +1,5 @@
-from fastapi import APIRouter
-
+from app.controllers import paths
 from app.models import schemas, models
 from app.controllers.base_controller import crud
 
-router = APIRouter()
-crud(router, schemas.Genre, schemas.Genre, models.Genre, 'id')
+paths['genre'] = crud(schemas.Genre, schemas.Genre, models.Genre, 'id')
