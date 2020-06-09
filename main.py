@@ -57,12 +57,5 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
-# [app.include_router(
-#     router,
-#     prefix=path,
-#     tags=[spacename],
-# ) for router, path, spacename in registered_paths]
-
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)
