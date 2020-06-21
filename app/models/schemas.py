@@ -18,6 +18,7 @@ class Genre(BaseModel):
 class User(BaseModel):
     id: str
     external_token: str = None
+    genres: str = ''
 
     class Config:
         orm_mode = True
@@ -41,6 +42,14 @@ class MovieRead(Movie):
     id: int
     rating: float
     vote_count: int
+
+
+class MovieRecommendation(MovieRead):
+    cosine_similarity: float = None
+
+
+class MovieUserRecommendation(MovieRead):
+    expected_rating: float = None
 
 
 class Rating(BaseModel):

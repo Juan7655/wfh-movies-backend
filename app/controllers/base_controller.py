@@ -1,6 +1,6 @@
 from typing import Type, List
 
-from fastapi import Depends, Query
+from fastapi import Depends, Query, APIRouter
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -12,9 +12,10 @@ from app.util.decorators import error_handling
 from app.util.errors import InvalidParameter, ResourceAlreadyExists, ResourceDoesNotExist
 
 
-def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], query_model: Base, id_field: str,
-         filter_model: Type[Filter] = Filter, **kwargs):
+def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model: Base, id_field: str,
+         filter_model: Type[Filter] = Filter, router=None, **kwargs):
     entity_name = query_model.__name__
+    router = router or APIRouter()
 
     @router.get('', response_model=Page[read_model], responses=error_docs(entity_name, InvalidParameter))
     @error_handling
@@ -60,3 +61,5 @@ def crud(router, read_model: Type[BaseModel], write_model: Type[BaseModel], quer
     ):
         delete_instance(db=db, instance=instance)
         return PlainOkResponse().content
+
+    return router

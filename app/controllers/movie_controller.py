@@ -1,10 +1,7 @@
-from fastapi import APIRouter
-
+from app.controllers import paths
 from app.controllers.base_controller import crud
 from app.models import schemas, models
 from app.service.commons import Filter, create_instance, save_instance
-
-router = APIRouter()
 
 
 class MovieFilter(Filter):
@@ -30,4 +27,4 @@ def create(db, instance: models.Movie, model):
     return create_instance(db=db, instance=instance, model=model)
 
 
-crud(router, schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter, post=create)
+paths['movie'] = crud(schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter, post=create)

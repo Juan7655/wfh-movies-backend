@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-
+from app.controllers import paths
 from app.controllers.base_controller import crud
 from app.models import schemas, models
 from app.models.models import Movie
@@ -17,5 +16,4 @@ def create(db, instance, model):
     return create_instance(db=db, instance=instance, model=model)
 
 
-router = APIRouter()
-crud(router, schemas.Rating, schemas.Rating, models.Rating, 'movie_user', post=create)
+paths['rating'] = crud(schemas.Rating, schemas.Rating, models.Rating, 'movie_user', post=create)
