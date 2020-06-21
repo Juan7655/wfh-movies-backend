@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Type, Union
 
 from fastapi import Depends, Path, HTTPException
 from pydantic import BaseModel
@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
 from app.util.errors import InvalidParameter, ResourceDoesNotExist, ResourceAlreadyExists
+from config import log
 
 
 class PlainOkResponse(BaseModel):
@@ -22,7 +23,6 @@ def instance_existence(model: Base, id_field: str):
         else:
             filters = {id_field: id_value}
         db_instance = db.query(model).filter_by(**filters).first()
-
         if db_instance is None:
             error = ResourceDoesNotExist(model.__name__)
             raise HTTPException(error.status_code, error.content)
@@ -42,6 +42,7 @@ def save_instance(db_instance, db: Session):
         db.commit()
         db.refresh(db_instance)
     except IntegrityError as err:
+        log.error(err)
         raise ResourceAlreadyExists(type(db_instance).__name__)
     return db_instance
 
@@ -157,7 +158,7 @@ def update_instance_data(data, instance, db: Session):
     return save_instance(db_instance=instance, db=db)
 
 
-def error_docs(resource_name, *args: Type[Exception]):
+def error_docs(resource_name, *args: Union[Type[Exception], Exception]):
     default = {404: "Unknown error"}
     return {
         k: {"description": v.replace('resource', resource_name)} for error in args

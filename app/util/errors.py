@@ -10,6 +10,11 @@ class InvalidParameter(HeyMovieError):
 
 class ResourceStateConflict(HeyMovieError):
     status_code = 409
+    docs = {status_code: 'The is a problem with the state of a resource'}
+
+    def __init__(self, message):
+        self.content = message
+        self.docs = {self.status_code: message}
 
 
 class ResourceAlreadyExists(ResourceStateConflict):

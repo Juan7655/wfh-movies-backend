@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -10,6 +11,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     external_token = Column(String, unique=True)
+    ratings = relationship("Rating", backref="users", uselist=True, lazy=True)
 
 
 class Movie(Base):
