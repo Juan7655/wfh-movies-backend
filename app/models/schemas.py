@@ -43,6 +43,14 @@ class MovieRead(Movie):
     vote_count: int
 
 
+class MovieRecommendation(MovieRead):
+    cosine_similarity: float = None
+
+
+class MovieUserRecommendation(MovieRead):
+    expected_rating: float = None
+
+
 class Rating(BaseModel):
     user: int
     movie: int
