@@ -11,6 +11,8 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     external_token = Column(String, unique=True)
+    name = Column(String)
+    email = Column(String)
     genres = Column(String, server_default='', nullable=False)
     ratings = relationship("Rating", backref="users", uselist=True, lazy=True)
 

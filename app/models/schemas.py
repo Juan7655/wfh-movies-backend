@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from typing import TypeVar, Generic, List
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, EmailStr
 from pydantic.generics import GenericModel
 
 T = TypeVar('T')
@@ -18,6 +18,8 @@ class Genre(BaseModel):
 class User(BaseModel):
     id: str
     external_token: str = None
+    name: str = None
+    email: EmailStr = None
     genres: str = ''
 
     class Config:
