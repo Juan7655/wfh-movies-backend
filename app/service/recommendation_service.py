@@ -1,15 +1,15 @@
 from typing import List, Set, Tuple
 
 import numpy as np
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, or_
 from sqlalchemy.orm import Session
 
-from app.models.models import Movie, Rating
+from app.models.models import Movie, Rating, User
 from app.util.errors import ResourceStateConflict
 
 
-def similar_movies(db: Session, movie_id: int) -> List[Movie]:
-    movies_similarities = get_similar_items(Rating.user, Rating.rating, db, 'movie', movie_id)
+def similar_movies(db: Session, movie: Movie) -> List[Movie]:
+    movies_similarities = get_similar_items(Rating.user, Rating.rating, db, 'movie', movie.id)
     movies_recommendations = db.query(Movie).filter(Movie.id.in_(movies_similarities.keys())).all()
     [setattr(movie, 'cosine_similarity', movies_similarities.get(movie.id)) for movie in movies_recommendations]
     return movies_recommendations
@@ -103,10 +103,21 @@ def get_ordered_query(common_set, db, select_col, sort_col, **kwargs) -> List[fl
         .all()
 
 
-def user_recommendations(db: Session, user_id: int) -> List[Movie]:
-    movies_rated = db.query(Rating.movie).filter(Rating.user == user_id).all()
+def user_recommendations(db: Session, user: User) -> List[Movie]:
+    movies_rated: List[Rating] = user.ratings
+
+    if len(movies_rated) < 5:
+        return db.query(Movie) \
+            .filter(or_(*tuple(Movie.genres.ilike(f'%{v}%') for v in user.genres.split('|')))) \
+            .filter(Movie.vote_count > 10) \
+            .filter(Movie.id.notin_([r.movie for r in movies_rated])) \
+            .order_by(desc(Movie.rating)) \
+            .limit(5) \
+            .all()
+
     user_similarities = get_similar_items(
-        db=db, entity_id=user_id,
+        db=db,
+        entity_id=user.id,
         col_comparison=Rating.movie,
         col_value=Rating.rating,
         entity_col_name='user'
