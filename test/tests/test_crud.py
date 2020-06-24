@@ -1,9 +1,10 @@
 from pytest import fixture, mark
 
 from test.tests.base_crud import CrudBaseTest
-from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist
+from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist, Section
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema
+    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema, \
+    Section as SectionSchema
 
 
 class TestMovies(CrudBaseTest):
@@ -172,6 +173,28 @@ class TestGenres(CrudBaseTest):
         super().test_delete_item_successfully(web_client, entity_id)
 
     def test_update_item_successfully(self, web_client, entity_id=genre, **kwargs):
+        super().test_update_item_successfully(web_client, entity_id, **kwargs)
+
+
+class TestSections(CrudBaseTest):
+    section = 'new-test-section'
+
+    def setup(self):
+        self.entity = Section
+        self.write_schema = SectionSchema
+        self.read_schema = SectionSchema
+        self.entity_json = {
+            'id': self.section,
+        }
+        super().setup()
+
+    def test_get_one_item_successfully(self, web_client, entity_id=section):
+        super().test_get_one_item_successfully(web_client, entity_id)
+
+    def test_delete_item_successfully(self, web_client, entity_id=section):
+        super().test_delete_item_successfully(web_client, entity_id)
+
+    def test_update_item_successfully(self, web_client, entity_id=section, **kwargs):
         super().test_update_item_successfully(web_client, entity_id, **kwargs)
 
 

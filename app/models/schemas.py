@@ -15,6 +15,14 @@ class Genre(BaseModel):
         orm_mode = True
 
 
+class Section(BaseModel):
+    id: str
+    poster_path: HttpUrl = None
+
+    class Config:
+        orm_mode = True
+
+
 class User(BaseModel):
     id: str
     external_token: str = None

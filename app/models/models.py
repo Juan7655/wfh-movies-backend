@@ -75,6 +75,13 @@ class Genre(Base):
     poster_path = Column(String, nullable=True)
 
 
+class Section(Base):
+    __tablename__ = "section"
+
+    id = Column(String, primary_key=True, index=True)
+    poster_path = Column(String, nullable=True)
+
+
 class Request(Base):
     __tablename__ = "request"
 
