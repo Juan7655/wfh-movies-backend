@@ -16,6 +16,11 @@ class PlainOkResponse(BaseModel):
     definition: dict = {"content": {'application/json': {'example': content}}}
 
 
+class RatingsHistory(BaseModel):
+    example: dict = {2001: 4.5}
+    definition: dict = {"content": {'application/json': {'example': example}}}
+
+
 def instance_existence(model: Base, id_field: str):
     def wrapped(id_value: str = Path(..., alias=id_field), db: Session = Depends(get_db)) -> Base:
         if type(id_value) == str:
