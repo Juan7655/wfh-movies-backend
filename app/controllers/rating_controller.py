@@ -34,6 +34,6 @@ paths['rating'] = router
 @error_handling
 def get_movie_ratings_history_by_year(
         db: Session = Depends(get_db),
-        _: Movie = Depends(instance_existence(Movie, id_field='id'))
+        movie: Movie = Depends(instance_existence(Movie, id_field='id'))
 ):
-    return get_rolling_avg_movie_ratings(db)
+    return get_rolling_avg_movie_ratings(db, movie.id)

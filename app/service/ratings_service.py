@@ -1,12 +1,12 @@
 from sqlalchemy import text
 
 
-def get_rolling_avg_movie_ratings(db):
-    sql = text("""
+def get_rolling_avg_movie_ratings(db, movie_id):
+    sql = text(f"""
 select year, ratings_cum_sum / count_cum_sum as moving_rating
 from (with T as (
     select EXTRACT(ISOYEAR FROM to_timestamp(timestamp)) as year, sum(rating) as sum_val, count(rating) as vote_count
-    from rating where movie = 33154
+    from rating where movie = {movie_id}
     group by year order by year
 ) Select T.year,
              sum(T.sum_val) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)    as ratings_cum_sum,
