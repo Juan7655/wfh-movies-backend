@@ -125,7 +125,7 @@ def user_recommendations(db: Session, user: User) -> List[Movie]:
 
     results: List[Tuple[Movie, float]] = db.query(Movie, func.max(Rating.rating)) \
         .filter(Rating.user.in_(user_similarities.keys())) \
-        .filter(Rating.movie.notin_(movies_rated)) \
+        .filter(Rating.movie.notin_([r.movie for r in movies_rated])) \
         .filter(Rating.movie == Movie.id) \
         .group_by(Movie.id) \
         .order_by(desc(func.max(Rating.rating))) \
