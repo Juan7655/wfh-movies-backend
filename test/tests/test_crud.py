@@ -3,7 +3,7 @@ from pytest import fixture, mark
 from test.tests.base_crud import CrudBaseTest
 from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist, Section
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, User as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema, \
+    Tag as TagSchema, Genre as GenreSchema, UserRead as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema, \
     Section as SectionSchema
 
 
@@ -209,3 +209,13 @@ class TestUsers(CrudBaseTest):
             'id': self.user_id,
         }
         super().setup()
+
+    def test_create_item_already_created_should_return_error(self, web_client):
+        """Pre-Condition: One Item should be registered in system"""
+        response = web_client.post(self.path, json=self.entity_json)
+        assert response.status_code == 200
+
+        """Condition: When requesting to create item with same data, should create successfully"""
+        response = web_client.post(self.path, json=self.entity_json)
+
+        assert response.status_code == 200
