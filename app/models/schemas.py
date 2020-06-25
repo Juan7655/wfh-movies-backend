@@ -23,8 +23,7 @@ class Section(BaseModel):
         orm_mode = True
 
 
-class User(BaseModel):
-    id: str
+class UserWrite(BaseModel):
     external_token: str = None
     name: str = None
     email: EmailStr = None
@@ -32,6 +31,10 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserRead(UserWrite):
+    id: str
 
 
 class Movie(BaseModel):
