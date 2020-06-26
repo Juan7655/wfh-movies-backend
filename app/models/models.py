@@ -88,6 +88,7 @@ class Section(Base):
     poster_function = Column(String, nullable=True)
     is_principal = Column(Boolean, default=False)
     description = Column(String, default='')
+    order = Column(Integer, nullable=False, default=0)
 
 
 class Request(Base):
