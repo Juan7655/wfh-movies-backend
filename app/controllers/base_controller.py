@@ -27,8 +27,12 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
                                                     "{asc|desc} (e.g. title.asc)"),
             filters: List[str] = Query([], description=filter_model.docs, alias='filter')
     ):
-        query = query_objects(db=db, query_model=query_model, filters=filters, sort=sort, filter_model=filter_model)
-        return paginator(query, page_number=page, per_page_limit=limit)
+        def default(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = ()):
+            query = query_objects(db=db, query_model=query_model, filters=filters, sort=sort, filter_model=filter_model)
+            return paginator(query, page_number=page, per_page_limit=limit)
+
+        fun = kwargs.get('get_all', default)
+        return fun(db, limit=limit, page=page, sort=sort, filters=filters)
 
     @router.post('', response_model=read_model, responses=error_docs(entity_name, ResourceAlreadyExists))
     @error_handling
@@ -38,8 +42,9 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
 
     @router.get("/{%s}" % id_field, response_model=read_model, responses=error_docs(entity_name, ResourceDoesNotExist))
     @error_handling
-    def read_one(instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
-        return instance
+    def read_one(db: Session = Depends(get_db), instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
+        fun = kwargs.get('get_one', lambda **_: instance)
+        return fun(instance=instance, db=db)
 
     @router.put("/{%s}" % id_field, response_model=read_model, responses=error_docs(entity_name, ResourceDoesNotExist))
     @error_handling
