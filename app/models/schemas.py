@@ -17,10 +17,16 @@ class Genre(BaseModel):
 
 class Section(BaseModel):
     id: str
-    poster_path: HttpUrl = None
+    poster_function: str = 'query(Movie)'
+    is_principal: bool = False
+    description: str = ''
 
     class Config:
         orm_mode = True
+
+
+class SectionRead(Section):
+    poster_path: HttpUrl = None
 
 
 class UserWrite(BaseModel):

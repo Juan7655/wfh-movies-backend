@@ -111,6 +111,9 @@ class Filter:
         'ge': {
             'description': "ge(field: column[Comparable], value: Comparable) -> `field >= value`",
             'expression': lambda column: lambda value: column >= value},
+        'distinct': {
+            'description': "distinct(field: column[Comparable], value: Comparable) -> `field != value`",
+            'expression': lambda column: lambda value: column != value},
     }
 
     docs = "Filter data. Input format: operation(field, value). Available operations: <br>" \
@@ -128,11 +131,13 @@ class Filter:
         return criteria if type(criteria) == tuple else (criteria,)
 
 
-def query_objects(query_model,
-                  db: Session,
-                  filters: List[str] = (),
-                  sort: List[str] = (),
-                  filter_model: Type[Filter] = Filter):
+def query_objects(
+        query_model,
+        db: Session,
+        filters: List[str] = (),
+        sort: List[str] = (),
+        filter_model: Type[Filter] = Filter
+):
     query = db.query(query_model)
     query = apply_filters(query, query_model, filters, filter_model)
     query = apply_sorts(query, sort)
