@@ -3,7 +3,8 @@ from pytest import fixture, mark
 from test.tests.base_crud import CrudBaseTest
 from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist, Section
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, UserRead as UserSchema, Review as ReviewSchema, Watchlist as WatchlistSchema, \
+    Tag as TagSchema, Genre as GenreSchema, UserRead as UserSchema, Review as ReviewSchema, \
+    Watchlist as WatchlistSchema, \
     Section as SectionSchema
 
 
@@ -185,6 +186,9 @@ class TestSections(CrudBaseTest):
         self.read_schema = SectionSchema
         self.entity_json = {
             'id': self.section,
+            'poster_function': 'exact("https://github.com/Juan7655/wfh-movies-backend")',
+            'is_principal': False,
+            'description': 'string'
         }
         super().setup()
 
