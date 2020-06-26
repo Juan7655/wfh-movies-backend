@@ -20,7 +20,7 @@ class Section(BaseModel):
     poster_function: str = 'query(Movie)'
     is_principal: bool = False
     description: str = ''
-    order: int = 0
+    section_ordering: int = 0
 
     class Config:
         orm_mode = True
