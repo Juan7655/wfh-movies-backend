@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
+from app.models.schemas import Page
 from app.util.errors import InvalidParameter, ResourceDoesNotExist, ResourceAlreadyExists
 from config import log
 
@@ -67,15 +68,15 @@ def paginator(query, page_number, per_page_limit):
     offset = (page_number - 1) * per_page_limit
     items = query.offset(offset).limit(per_page_limit).all()
 
-    return {
-        'page': page_number,
-        'total_pages': total_pages,
-        'total_items': count,
-        'items_per_page': per_page_limit,
-        'has_next': has_next,
-        'has_prev': has_prev,
-        'items': items
-    }
+    return Page(
+        page=page_number,
+        total_pages=total_pages,
+        total_items=count,
+        items_per_page=per_page_limit,
+        has_next=has_next,
+        has_prev=has_prev,
+        items=items
+    )
 
 
 class Filter:
