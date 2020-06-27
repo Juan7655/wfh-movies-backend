@@ -76,18 +76,11 @@ class Genre(Base):
 
 
 class Section(Base):
-    """
-    top='query(Movie, filters=[gt(vote_count, 20)], sort=[rating.desc], skip=0)'
-    new_releases='query(Movie, filters=[gt(date, 2020-06-01)], sort=[rating.desc])'
-    top_by_genre='query(Movie, filters=[gt(vote_count, 20)], sort=[rating.desc], skip=1)'
-    top='query(Movie, filters=[], sort=[rating.desc])'
-    """
     __tablename__ = "section"
 
     id = Column(String, primary_key=True, index=True)
     poster_function = Column(String, nullable=True)
     is_principal = Column(Boolean, default=False)
-    description = Column(String, default='')
     section_ordering = Column(Integer, nullable=False, default=0)
 
 
