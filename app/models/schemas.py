@@ -19,7 +19,6 @@ class Section(BaseModel):
     id: str
     poster_function: str = 'query(Movie)'
     is_principal: bool = False
-    description: str = ''
     section_ordering: int = 0
 
     class Config:
@@ -28,6 +27,7 @@ class Section(BaseModel):
 
 class SectionRead(Section):
     poster_path: HttpUrl = None
+    description: str = ''
 
 
 class UserWrite(BaseModel):
