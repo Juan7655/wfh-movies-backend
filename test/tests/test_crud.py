@@ -188,7 +188,6 @@ class TestSections(CrudBaseTest):
             'id': self.section,
             'poster_function': 'exact("https://github.com/Juan7655/wfh-movies-backend")',
             'is_principal': False,
-            'description': 'string'
         }
         super().setup()
 
