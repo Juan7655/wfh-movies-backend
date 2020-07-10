@@ -36,8 +36,9 @@ class Movie(Base):
 class Rating(Base):
     __tablename__ = "rating"
 
-    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
+    user = Column(Integer, ForeignKey("users.id"))
+    movie = Column(Integer, ForeignKey("movie.id"))
     rating = Column(Float, nullable=False)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 

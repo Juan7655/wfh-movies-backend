@@ -33,29 +33,5 @@ async def validation_exception_handler(_, exc):
     )
 
 
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    start_time = dt.now().timestamp()
-    response = await call_next(request)
-    if not settings.audit:
-        return response
-    end_time = dt.now().timestamp()
-    db = next(get_db())
-    api_key = request.headers.get('API_KEY')
-
-    instance = RequestModel(
-        path=str(request.url).replace('%20', ' ').replace('%28', '(').replace('%7C', '|').replace('%29', ')'),
-        verb=request.method,
-        start_time=start_time,
-        end_time=end_time,
-        response_status_code=response.status_code,
-        with_token=api_key == settings.api_key
-    )
-    save_instance(db=db, db_instance=instance)
-
-    response.headers["X-Process-Time"] = str(end_time - start_time)
-    return response
-
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)

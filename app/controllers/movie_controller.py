@@ -19,12 +19,4 @@ class MovieFilter(Filter):
            + '\n'.join([f'<br>**-{k}**: ' + v.get('description') for k, v in operators.items()])
 
 
-def create(db, instance: models.Movie, model):
-    genres = instance.genres.split('|')
-    new_genres = [models.Genre(id=g) for g in genres if db.query(models.Genre).filter_by(id=g).first() is None]
-    [save_instance(genre, db=db) for genre in new_genres]
-
-    return create_instance(db=db, instance=instance, model=model)
-
-
-paths['movie'] = crud(schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter, post=create)
+paths['movie'] = crud(schemas.MovieRead, schemas.Movie, models.Movie, filter_model=MovieFilter, id_field='id')

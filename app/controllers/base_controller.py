@@ -34,11 +34,11 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
         fun = kwargs.get('get_all', default)
         return fun(db, limit=limit, page=page, sort=sort, filters=filters)
 
-    @router.post('', response_model=read_model, responses=error_docs(entity_name, ResourceAlreadyExists))
+    @router.post('', responses=error_docs(entity_name, ResourceAlreadyExists))
     @error_handling
-    def create(data: write_model, db: Session = Depends(get_db)):
-        fun = kwargs.get('post', create_instance)
-        return fun(db=db, instance=data, model=query_model)
+    def create(data: write_model):
+        fun = kwargs.get('post')
+        return fun(instance=data)
 
     @router.get("/{%s}" % id_field, response_model=read_model, responses=error_docs(entity_name, ResourceDoesNotExist))
     @error_handling
