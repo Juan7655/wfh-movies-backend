@@ -24,7 +24,6 @@ def run():
     streaming_pull_future = subscriber.subscribe(
         subscription_path, callback=callback
     )
-    print("Listening for messages on {}..\n".format(subscription_path))
     log.info("Listening for messages on {}..\n".format(subscription_path))
 
     with subscriber:
