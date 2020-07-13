@@ -62,6 +62,7 @@ class MovieRead(Movie):
     id: int
     rating: float
     vote_count: int
+    in_watchlist: bool = False
 
 
 class MovieRecommendation(MovieRead):

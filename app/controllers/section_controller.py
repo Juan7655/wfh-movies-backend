@@ -24,7 +24,7 @@ def update_section(db, section: models.Section) -> models.Section:
     return section
 
 
-def read_all(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = ()):
+def read_all(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = (), **_):
     query = query_objects(db=db, query_model=models.Section, filters=filters, sort=sort)
     page = paginator(query, page_number=page, per_page_limit=limit)
     page.items = [update_section(db, item) for item in page.items]
