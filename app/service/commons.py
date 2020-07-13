@@ -58,7 +58,7 @@ def delete_instance(instance: BaseModel, db: Session):
     db.commit()
 
 
-def paginator(query, page_number, per_page_limit):
+def paginator(query, page_number: int, per_page_limit: int) -> Page:
     count = query.count()
     total_pages = max(1, (count % per_page_limit != 0) + count // per_page_limit)
     has_next = page_number < total_pages

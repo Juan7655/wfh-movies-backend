@@ -1,7 +1,9 @@
+from typing import List
+
 from app.controllers import paths
 from app.controllers.base_controller import crud
 from app.models import schemas, models
-from app.service.commons import Filter, create_instance, save_instance
+from app.service.commons import Filter, create_instance, save_instance, query_objects, paginator
 
 
 class MovieFilter(Filter):
@@ -27,4 +29,15 @@ def create(db, instance: models.Movie, model):
     return create_instance(db=db, instance=instance, model=model)
 
 
-paths['movie'] = crud(schemas.MovieRead, schemas.Movie, models.Movie, 'id', filter_model=MovieFilter, post=create)
+def get_all(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = (), user_id=None):
+    if user_id is not None:
+        watchlist = [i for i, in db.query(models.Watchlist.movie).filter_by(user=user_id).all()]
+    else:
+        watchlist = []
+    query = query_objects(db=db, query_model=models.Movie, filters=filters, sort=sort, filter_model=MovieFilter)
+    result = paginator(query, page_number=page, per_page_limit=limit)
+    [setattr(i, 'in_watchlist', i.id in watchlist) for i in result.items]
+    return result
+
+
+paths['movie'] = crud(schemas.MovieRead, schemas.Movie, models.Movie, 'id', get_all=get_all, post=create)

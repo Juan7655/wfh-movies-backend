@@ -1,6 +1,6 @@
-from typing import Type, List
+from typing import Type, List, Optional
 
-from fastapi import Depends, Query, APIRouter
+from fastapi import Depends, Query, APIRouter, Header
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -25,14 +25,15 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
             page: int = 1,
             sort: List[str] = Query([], description="Sorting parameter given in the format field."
                                                     "{asc|desc} (e.g. title.asc)"),
-            filters: List[str] = Query([], description=filter_model.docs, alias='filter')
+            filters: List[str] = Query([], description=filter_model.docs, alias='filter'),
+            user_id: Optional[int] = Header(None)
     ):
-        def default(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = ()):
+        def default(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = (), **_):
             query = query_objects(db=db, query_model=query_model, filters=filters, sort=sort, filter_model=filter_model)
             return paginator(query, page_number=page, per_page_limit=limit)
 
         fun = kwargs.get('get_all', default)
-        return fun(db, limit=limit, page=page, sort=sort, filters=filters)
+        return fun(db, limit=limit, page=page, sort=sort, filters=filters, user_id=user_id)
 
     @router.post('', response_model=read_model, responses=error_docs(entity_name, ResourceAlreadyExists))
     @error_handling
