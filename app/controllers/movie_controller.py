@@ -4,6 +4,7 @@ from app.controllers import paths
 from app.controllers.base_controller import crud
 from app.models import schemas, models
 from app.service.commons import Filter, create_instance, save_instance, query_objects, paginator
+from config import log
 
 
 class MovieFilter(Filter):
@@ -31,7 +32,9 @@ def create(db, instance: models.Movie, model):
 
 def get_all(db, limit: int = 10, page: int = 1, sort: List[str] = (), filters: List[str] = (), user_id=None):
     if user_id is not None:
+        log.info("Searching watchlist for user: {%s} with data type: {%s}", user_id, type(user_id))
         watchlist = [i for i, in db.query(models.Watchlist.movie).filter_by(user=user_id).all()]
+        log.info("Retrieved %s elements in user's watchlist", len(watchlist))
     else:
         watchlist = []
     query = query_objects(db=db, query_model=models.Movie, filters=filters, sort=sort, filter_model=MovieFilter)
