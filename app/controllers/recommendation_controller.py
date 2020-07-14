@@ -20,7 +20,7 @@ paths['recommendation'] = router
 def recommendations_paginator(res: List[Movie]) -> Page[schemas.Movie]:
     return Page(
         page=1,
-        otal_pages=1,
+        total_pages=1,
         total_items=len(res),
         items_per_page=5,
         has_next=False,
@@ -44,7 +44,7 @@ def movie_similarities(
 ):
     watchlist = get_user_watchlist_ids(db, user_id)
     movies = similar_movies(db=db, movie=movie)
-    [setattr(movie, 'in_watchlist', movie.id in watchlist) for movie in movies]
+    [setattr(movie, 'in_watchlist', True) for movie in movies if movie.id in watchlist]
     return recommendations_paginator(movies)
 
 
@@ -56,9 +56,8 @@ def movie_similarities(
 def get_user_recommendations(
         db: Session = Depends(get_db),
         user: User = Depends(instance_existence(User, id_field='id')),
-        user_id: Optional[int] = Header(None)
 ):
-    watchlist = get_user_watchlist_ids(db, user_id)
+    watchlist = get_user_watchlist_ids(db, user.id)
     recommendations = user_recommendations(db=db, user=user)
-    [setattr(movie, 'in_watchlist', movie.id in watchlist) for movie in recommendations]
+    [setattr(movie, 'in_watchlist', True) for movie in recommendations if movie.id in watchlist]
     return recommendations_paginator(recommendations)

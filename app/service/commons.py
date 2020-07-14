@@ -180,7 +180,7 @@ def error_docs(resource_name, *args: Union[Type[Exception], Exception]):
 
 
 def get_user_watchlist_ids(db: Session, user_id: int) -> List[int]:
-    log.info("Searching watchlist for user: {%s}", user_id, type(user_id))
+    log.info("Searching watchlist for user: {%s}", user_id)
     watchlist = [] if not user_id else [i for i, in db.query(models.Watchlist.movie).filter_by(user=user_id).all()]
     log.debug("Retrieved %s elements in user's watchlist", len(watchlist))
     return watchlist
