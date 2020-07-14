@@ -1,3 +1,4 @@
+import logging
 from typing import List, Type, Union
 
 from fastapi import Depends, Path, HTTPException
@@ -7,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
+from app.models import models
 from app.models.schemas import Page
 from app.util.errors import InvalidParameter, ResourceDoesNotExist, ResourceAlreadyExists
 from config import log
@@ -175,3 +177,10 @@ def error_docs(resource_name, *args: Union[Type[Exception], Exception]):
         k: {"description": v.replace('resource', resource_name)} for error in args
         for k, v in getattr(error, 'docs', default).items()
     }
+
+
+def get_user_watchlist_ids(db: Session, user_id: int) -> List[int]:
+    log.info("Searching watchlist for user: {%s}", user_id, type(user_id))
+    watchlist = [] if not user_id else [i for i, in db.query(models.Watchlist.movie).filter_by(user=user_id).all()]
+    log.debug("Retrieved %s elements in user's watchlist", len(watchlist))
+    return watchlist
