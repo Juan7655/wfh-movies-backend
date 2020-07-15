@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean, and_
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -14,7 +14,7 @@ class User(Base):
     name = Column(String)
     email = Column(String)
     genres = Column(String, server_default='', nullable=False)
-    ratings = relationship("Rating", backref="users", uselist=True, lazy=True)
+    ratings = relationship("Rating", uselist=True, lazy=True)
 
 
 class Movie(Base):
@@ -40,15 +40,17 @@ class Rating(Base):
     movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
     rating = Column(Float, nullable=False)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+    user_model = relationship('User')
 
 
 class Review(Base):
     __tablename__ = "review"
 
-    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    movie = Column(Integer, ForeignKey("movie.id"), primary_key=True)
+    user = Column(Integer, ForeignKey("rating.user"), primary_key=True)
+    movie = Column(Integer, ForeignKey("rating.movie"), primary_key=True)
     comment = Column(String, nullable=False)
     timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+    rating = relationship("Rating", primaryjoin='and_(Review.user==Rating.user, Review.movie==Rating.movie)')
 
 
 class Tag(Base):
