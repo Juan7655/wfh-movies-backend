@@ -83,11 +83,30 @@ class Rating(BaseModel):
         orm_mode = True
 
 
+class ReviewRating(BaseModel):
+    rating: float
+    user_model: UserRead = None
+
+    class Config:
+        orm_mode = True
+
+
 class Review(BaseModel):
     user: int
     movie: int
     comment: str
     timestamp: int = int(datetime.now().timestamp())
+
+    class Config:
+        orm_mode = True
+
+
+class ReviewRead(BaseModel):
+    user: int
+    movie: int
+    comment: str
+    timestamp: int = int(datetime.now().timestamp())
+    rating: ReviewRating = None
 
     class Config:
         orm_mode = True
