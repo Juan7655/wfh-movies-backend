@@ -43,7 +43,8 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
 
     @router.get("/{%s}" % id_field, response_model=read_model, responses=error_docs(entity_name, ResourceDoesNotExist))
     @error_handling
-    def read_one(db: Session = Depends(get_db), instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
+    def read_one(db: Session = Depends(get_db),
+                 instance: Base = Depends(instance_existence(query_model, id_field=id_field))):
         fun = kwargs.get('get_one', lambda **_: instance)
         return fun(instance=instance, db=db)
 
@@ -54,7 +55,8 @@ def crud(read_model: Type[BaseModel], write_model: Type[BaseModel], query_model:
             db: Session = Depends(get_db),
             instance: Base = Depends(instance_existence(query_model, id_field=id_field))
     ):
-        return update_instance_data(db=db, data=data, instance=instance)
+        fun = kwargs.get('put', update_instance_data)
+        return fun(db=db, data=data, instance=instance)
 
     @router.delete(
         "/{%s}" % id_field,
