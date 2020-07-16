@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 from app.controllers import *
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models.models import Request as RequestModel
 from app.service.commons import save_instance
 from config import log, settings
@@ -40,7 +40,7 @@ async def add_process_time_header(request: Request, call_next):
     if not settings.audit:
         return response
     end_time = dt.now().timestamp()
-    db = next(get_db())
+    db = SessionLocal()
     api_key = request.headers.get('API_KEY')
 
     instance = RequestModel(
@@ -52,6 +52,7 @@ async def add_process_time_header(request: Request, call_next):
         with_token=api_key == settings.api_key
     )
     save_instance(db=db, db_instance=instance)
+    db.close()
 
     response.headers["X-Process-Time"] = str(end_time - start_time)
     return response
