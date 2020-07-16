@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 from app.controllers import *
-from app.database import get_db, SessionLocal
+from app.database import SessionLocal
 from app.models.models import Request as RequestModel
 from app.service.commons import save_instance
 from config import log, settings
