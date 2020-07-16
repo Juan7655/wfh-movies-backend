@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
@@ -55,6 +55,19 @@ async def add_process_time_header(request: Request, call_next):
     db.close()
 
     response.headers["X-Process-Time"] = str(end_time - start_time)
+    return response
+
+
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    response = Response("Unexpected error", status_code=404)
+    try:
+        request.state.db = SessionLocal()
+        log.info("Opened a db session instance")
+        response = await call_next(request)
+    finally:
+        log.info("Closing the db session instance")
+        request.state.db.close()
     return response
 
 

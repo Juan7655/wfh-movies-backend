@@ -3,9 +3,9 @@ from typing import List
 from pydantic import HttpUrl
 
 from app.controllers import paths
-from app.models import schemas, models
 from app.controllers.base_controller import crud
-from app.service.commons import query_objects, Filter, paginator
+from app.models import schemas, models
+from app.service.commons import query_objects, paginator
 
 
 def query_movie(skip: int = 0, **kwargs):

@@ -3,7 +3,7 @@ from pytest import fixture, mark
 from test.tests.base_crud import CrudBaseTest
 from app.models.models import Movie, Rating, Tag, Genre, User, Review, Watchlist, Section
 from app.models.schemas import Movie as MovieSchema, MovieRead as MovieReadSchema, Rating as RatingSchema, \
-    Tag as TagSchema, Genre as GenreSchema, UserRead as UserSchema, Review as ReviewSchema, \
+    Tag as TagSchema, Genre as GenreSchema, UserRead as UserSchema, BaseReview as ReviewSchema, \
     Watchlist as WatchlistSchema, \
     Section as SectionSchema
 
@@ -111,6 +111,7 @@ class TestReviews(CrudBaseTest):
         self.entity_json = {
             'user': 1,
             'movie': 1,
+            'rating': 1,
             'comment': 'Really cool - Test comment',
         }
 
