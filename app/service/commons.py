@@ -1,4 +1,3 @@
-import logging
 from typing import List, Type, Union
 
 from fastapi import Depends, Path, HTTPException
@@ -39,12 +38,12 @@ def instance_existence(model: Base, id_field: str):
     return wrapped
 
 
-def create_instance(db: Session, instance: BaseModel, model: Base):
+def create_instance(db: Session, instance: BaseModel, model: Base) -> Base:
     db_instance = model(**instance.dict())
     return save_instance(db=db, db_instance=db_instance)
 
 
-def save_instance(db_instance, db: Session):
+def save_instance(db_instance, db: Session) -> Base:
     try:
         db.add(db_instance)
         db.commit()
