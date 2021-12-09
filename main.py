@@ -51,7 +51,7 @@ async def add_process_time_header(request: Request, call_next):
         response_status_code=response.status_code,
         with_token=api_key == settings.api_key
     )
-    save_instance(db=db, db_instance=instance)
+    # save_instance(db=db, db_instance=instance)
     db.close()
 
     response.headers["X-Process-Time"] = str(end_time - start_time)
